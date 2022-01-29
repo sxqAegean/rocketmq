@@ -56,10 +56,15 @@ public class RouteInfoManager {
     private final HashMap<String/* brokerAddr */, List<String>/* Filter Server */> filterServerTable;
 
     public RouteInfoManager() {
+        //topic与队列的映射关系
         this.topicQueueTable = new HashMap<String, List<QueueData>>(1024);
+        //brokerName与brokerIP地址的映射关系
         this.brokerAddrTable = new HashMap<String, BrokerData>(128);
+        //clusterName 集群名称 与 brokerName broker名称 的映射关系
         this.clusterAddrTable = new HashMap<String, Set<String>>(32);
+        //brokerIP地址与活着的broker服务信息的映射关系，每次接收到心跳就会更新
         this.brokerLiveTable = new HashMap<String, BrokerLiveInfo>(256);
+        //broker上的FilterServer列表，用于类模式的过滤
         this.filterServerTable = new HashMap<String, List<String>>(256);
     }
 
@@ -371,6 +376,12 @@ public class RouteInfoManager {
         }
     }
 
+    /**
+     * 根据topic获取路由信息
+     *
+     * @param topic
+     * @return
+     */
     public TopicRouteData pickupTopicRouteData(final String topic) {
         TopicRouteData topicRouteData = new TopicRouteData();
         boolean foundQueueData = false;

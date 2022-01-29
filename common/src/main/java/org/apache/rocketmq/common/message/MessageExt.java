@@ -28,21 +28,30 @@ public class MessageExt extends Message {
     private static final long serialVersionUID = 5720810158625748049L;
 
     private String brokerName;
-
+    /**
+     * 队列ID
+     */
     private int queueId;
 
     private int storeSize;
 
     private long queueOffset;
     private int sysFlag;
+
     private long bornTimestamp;
     private SocketAddress bornHost;
 
     private long storeTimestamp;
     private SocketAddress storeHost;
+    /**
+     * 消息唯一索引
+     */
     private String msgId;
     private long commitLogOffset;
     private int bodyCRC;
+    /**
+     * 消费时间
+     */
     private int reconsumeTimes;
 
     private long preparedTransactionOffset;

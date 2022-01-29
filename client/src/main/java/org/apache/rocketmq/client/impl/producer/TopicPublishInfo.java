@@ -24,10 +24,23 @@ import org.apache.rocketmq.common.protocol.route.QueueData;
 import org.apache.rocketmq.common.protocol.route.TopicRouteData;
 
 public class TopicPublishInfo {
+    /**
+     * 是否是顺序消息
+     */
     private boolean orderTopic = false;
     private boolean haveTopicRouterInfo = false;
+    /**
+     * 该主题队列的消息队列
+     */
     private List<MessageQueue> messageQueueList = new ArrayList<MessageQueue>();
+    /**
+     * 每 选择 一次 消息 队列， 该 值 会 自 增 1， 如果 Integer. MAX_ VALUE， 则 重置 为 0， 用于 选择 消息 队列。
+     *
+     */
     private volatile ThreadLocalIndex sendWhichQueue = new ThreadLocalIndex();
+    /**
+     * 主题路由信息
+     */
     private TopicRouteData topicRouteData;
 
     public boolean isOrderTopic() {
@@ -66,20 +79,28 @@ public class TopicPublishInfo {
         this.haveTopicRouterInfo = haveTopicRouterInfo;
     }
 
+    /**
+     *
+     * @param lastBrokerName 上次发送失败的brokerName
+     * @return
+     */
     public MessageQueue selectOneMessageQueue(final String lastBrokerName) {
         if (lastBrokerName == null) {
             return selectOneMessageQueue();
         } else {
             for (int i = 0; i < this.messageQueueList.size(); i++) {
                 int index = this.sendWhichQueue.incrementAndGet();
+                //根据下标取余，获取队列信息
                 int pos = Math.abs(index) % this.messageQueueList.size();
                 if (pos < 0)
                     pos = 0;
                 MessageQueue mq = this.messageQueueList.get(pos);
+                //判断broker名称是否和上一次发送失败的broker相同，如果不相同则直接返回，如果相同，则继续下一个
                 if (!mq.getBrokerName().equals(lastBrokerName)) {
                     return mq;
                 }
             }
+            //如果只有个broker，则根据下标取余获取队列信息
             return selectOneMessageQueue();
         }
     }

@@ -29,15 +29,20 @@ public class PushConsumer {
 
     public static void main(String[] args) throws InterruptedException, MQClientException {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("CID_JODIE_1");
-        consumer.subscribe("TopicTest", "*");
+        consumer.subscribe("TopicTest", "TagA");
+        consumer.setNamesrvAddr("172.16.200.89:9876");
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
         //wrong time format 2017_0422_221800
-        consumer.setConsumeTimestamp("20181109221800");
+        //consumer.setConsumeTimestamp("20181109221800");
         consumer.registerMessageListener(new MessageListenerConcurrently() {
 
             @Override
             public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+                System.out.println("msg list size = " + msgs.size());
                 System.out.printf("%s Receive New Messages: %s %n", Thread.currentThread().getName(), msgs);
+                msgs.stream().forEach(msg ->{
+                    System.out.printf("Receive Message Body: %s %n", new String(msg.getBody()));
+                });
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
         });

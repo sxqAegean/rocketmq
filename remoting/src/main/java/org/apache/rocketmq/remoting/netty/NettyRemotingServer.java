@@ -194,7 +194,7 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             });
 
         prepareSharableHandlers();
-
+        //设置NameServer Netty服务端相关信息，监听端口，等待broker连接
         ServerBootstrap childHandler =
             this.serverBootstrap.group(this.eventLoopGroupBoss, this.eventLoopGroupSelector)
                 .channel(useEpoll() ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
@@ -231,11 +231,11 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
         } catch (InterruptedException e1) {
             throw new RuntimeException("this.serverBootstrap.bind().sync() InterruptedException", e1);
         }
-
+        //启动线程，监听nettyEvent，
         if (this.channelEventListener != null) {
             this.nettyEventExecutor.start();
         }
-
+        //启动一个定时任务，延迟3秒后，每隔1秒执行一次，扫描超时请求，回调并结束请求。
         this.timer.scheduleAtFixedRate(new TimerTask() {
 
             @Override
